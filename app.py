@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 # Load trained model
-with open("model.pkl", "rb") as file:
+with open("final_random_forest_model", "rb") as file:
     model = pickle.load(file)
 
 st.set_page_config(page_title="Placement Prediction", layout="centered")
