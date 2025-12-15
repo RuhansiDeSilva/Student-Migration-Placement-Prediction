@@ -1,26 +1,39 @@
 import streamlit as st
 import pickle
 import numpy as np
+import os
 
-# Load trained model
-with open("final_random_forest_model", "rb") as file:
-    model = pickle.load(file)
-
-st.set_page_config(page_title="Placement Prediction", layout="centered")
+st.set_page_config(
+    page_title="Placement Prediction",
+    layout="centered"
+)
 
 st.title("🎓 Placement Prediction App")
-st.write("Predict student placement status using ML")
 
-# ---- Input Fields ----
-cgpa = st.number_input("CGPA", min_value=0.0, max_value=10.0, step=0.01)
-internships = st.number_input("Number of Internships", min_value=0, step=1)
-projects = st.number_input("Number of Projects", min_value=0, step=1)
-certifications = st.number_input("Certifications Count", min_value=0, step=1)
+# -------- LOAD MODEL (CORRECT) --------
+@st.cache_resource
+def load_model():
+    model_path = os.path.join(os.getcwd(), "final_random_forest_model.pkl")
 
-# ---- Prediction ----
-if st.button("Predict Placement"):
-    input_data = np.array([[cgpa, internships, projects, certifications]])
-    prediction = model.predict(input_data)
+    if not os.path.exists(model_path):
+        st.error("❌ Model file not found: final_random_forest_model.pkl")
+        st.stop()
+
+    with open(model_path, "rb") as file:
+        return pickle.load(file)
+
+model = load_model()
+
+# -------- INPUTS --------
+cgpa = st.number_input("CGPA", 0.0, 10.0, step=0.01)
+internships = st.number_input("Internships", 0, step=1)
+projects = st.number_input("Projects", 0, step=1)
+certifications = st.number_input("Certifications", 0, step=1)
+
+# -------- PREDICTION --------
+if st.button("Predict"):
+    X = np.array([[cgpa, internships, projects, certifications]])
+    prediction = model.predict(X)
 
     if prediction[0] == 1:
         st.success("✅ Student is likely to be Placed")
