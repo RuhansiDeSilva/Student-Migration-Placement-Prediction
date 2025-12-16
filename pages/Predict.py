@@ -3,21 +3,27 @@ import pandas as pd
 import streamlit as st
 from pathlib import Path
 
-# -----------------------------
-# Load Model (SAFE + CACHED)
-# -----------------------------
+# --------------------------------------------------
+# Load Model (CORRECT PATH FOR /pages/)
+# --------------------------------------------------
 @st.cache_resource
 def load_model():
-    model_path = Path(__file__).parent / "final_random_forest_model.joblib"
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    model_path = BASE_DIR / "final_random_forest_model.joblib"
+
+    if not model_path.exists():
+        st.error("❌ Model file not found. Please check deployment.")
+        st.stop()
+
     return joblib.load(model_path)
 
 model = load_model()
 
-# -----------------------------
-# Feature Template (MUST MATCH TRAINING)
-# -----------------------------
+# --------------------------------------------------
+# Feature Columns (MUST MATCH TRAINING)
+# --------------------------------------------------
 FEATURE_COLUMNS = [
-    # Placement country (top importance)
+    # Placement country
     "placement_country_India",
     "placement_country_United Kingdom",
     "placement_country_Ireland",
@@ -40,7 +46,7 @@ FEATURE_COLUMNS = [
     "placement_company_Tesla",
     "placement_company_Facebook",
 
-    # Numeric features
+    # Scores
     "gpa_or_score",
     "test_score",
     "study_duration",
@@ -50,47 +56,67 @@ FEATURE_COLUMNS = [
     "visa_status_Schengen Student Visa"
 ]
 
-# -----------------------------
-# Prediction Function
-# -----------------------------
-def predict_placement(
-    placement_country,
-    placement_company,
-    visa_status,
-    gpa,
-    test_score,
-    study_duration
-):
-    """
-    Returns:
-    - prediction (0 or 1)
-    - probability (float)
-    """
+# --------------------------------------------------
+# UI
+# --------------------------------------------------
+st.title("🎯 Placement Prediction")
+st.markdown("Predict whether a student will be **Placed or Not Placed**")
 
-    # Create empty row
-    input_data = pd.DataFrame(0, index=[0], columns=FEATURE_COLUMNS)
+st.divider()
 
-    # Encode categorical inputs
-    country_col = f"placement_country_{placement_country}"
-    company_col = f"placement_company_{placement_company}"
-    visa_col = f"visa_status_{visa_status}"
+placement_country = st.selectbox(
+    "Placement Country",
+    [
+        "India", "United Kingdom", "Ireland", "Germany",
+        "Russia", "UAE", "Finland", "South Africa", "United States"
+    ]
+)
 
-    if country_col in input_data.columns:
-        input_data[country_col] = 1
+placement_company = st.selectbox(
+    "Placement Company",
+    [
+        "Microsoft", "SAP", "Goldman Sachs", "Google", "IBM",
+        "McKinsey", "Apple", "Deloitte", "Tesla", "Facebook"
+    ]
+)
 
-    if company_col in input_data.columns:
-        input_data[company_col] = 1
+visa_status = st.selectbox(
+    "Visa Status",
+    ["Tier 4", "Schengen Student Visa"]
+)
 
-    if visa_col in input_data.columns:
-        input_data[visa_col] = 1
+gpa = st.number_input("GPA / Score", 0.0, 10.0, step=0.01)
+test_score = st.number_input("Test Score", 0, 100)
+study_duration = st.number_input("Study Duration (Years)", 1, 6)
+
+st.divider()
+
+# --------------------------------------------------
+# Prediction Logic
+# --------------------------------------------------
+if st.button("🔮 Predict Placement", use_container_width=True):
+
+    input_df = pd.DataFrame(0, index=[0], columns=FEATURE_COLUMNS)
+
+    # Encode categorical values
+    input_df[f"placement_country_{placement_country}"] = 1
+    input_df[f"placement_company_{placement_company}"] = 1
+    input_df[f"visa_status_{visa_status}"] = 1
 
     # Numeric values
-    input_data["gpa_or_score"] = gpa
-    input_data["test_score"] = test_score
-    input_data["study_duration"] = study_duration
+    input_df["gpa_or_score"] = gpa
+    input_df["test_score"] = test_score
+    input_df["study_duration"] = study_duration
 
     # Prediction
-    prediction = model.predict(input_data)[0]
-    probability = model.predict_proba(input_data)[0][1]
+    prediction = model.predict(input_df)[0]
+    probability = model.predict_proba(input_df)[0][1]
 
-    return int(prediction), float(probability)
+    st.subheader("📌 Prediction Result")
+
+    if prediction == 1:
+        st.success("✅ **PLACED**")
+    else:
+        st.error("❌ **NOT PLACED**")
+
+    st.metric("Placement Probability", f"{probability * 100:.2f}%")
