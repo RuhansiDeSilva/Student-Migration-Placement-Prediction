@@ -1,4 +1,12 @@
 import streamlit as st
+prediction, probability = predict_placement(
+    placement_country,
+    placement_company,
+    visa_status,
+    gpa,
+    test_score,
+    study_duration
+)
 
 st.set_page_config(
     page_title="Placement Prediction System",
