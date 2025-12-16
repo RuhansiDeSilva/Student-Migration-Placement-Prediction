@@ -1,41 +1,33 @@
 import streamlit as st
-import pickle
+import joblib
 import numpy as np
+import pandas as pd
 import os
 
-st.set_page_config(
-    page_title="Placement Prediction",
-    layout="centered"
-)
-
+st.set_page_config(page_title="Placement Prediction", layout="centered")
 st.title("🎓 Placement Prediction App")
 
-# -------- LOAD MODEL (CORRECT) --------
 @st.cache_resource
 def load_model():
-    model_path = os.path.join(os.getcwd(), "final_random_forest_model.pkl")
-
-    if not os.path.exists(model_path):
-        st.error("❌ Model file not found: final_random_forest_model.pkl")
+    path = "final_random_forest_model.joblib"
+    if not os.path.exists(path):
+        st.error("❌ Model file not found")
         st.stop()
-
-    with open(model_path, "rb") as file:
-        return pickle.load(file)
+    return joblib.load(path)
 
 model = load_model()
 
-# -------- INPUTS --------
 cgpa = st.number_input("CGPA", 0.0, 10.0, step=0.01)
-internships = st.number_input("Internships", 0, step=1)
-projects = st.number_input("Projects", 0, step=1)
-certifications = st.number_input("Certifications", 0, step=1)
+internships = st.number_input("Internships", 0)
+projects = st.number_input("Projects", 0)
+certifications = st.number_input("Certifications", 0)
 
-# -------- PREDICTION --------
 if st.button("Predict"):
-    X = np.array([[cgpa, internships, projects, certifications]])
-    prediction = model.predict(X)
+    X = pd.DataFrame([[cgpa, internships, projects, certifications]],
+                     columns=["cgpa", "internships", "projects", "certifications"])
+    pred = model.predict(X)[0]
 
-    if prediction[0] == 1:
+    if pred == 1:
         st.success("✅ Student is likely to be Placed")
     else:
         st.error("❌ Student is unlikely to be Placed")
