@@ -1,22 +1,23 @@
 import joblib
 import pandas as pd
-import os
+import streamlit as st
+from pathlib import Path
 
-# ---------------- LOAD MODEL ----------------
-MODEL_PATH = "final_random_forest_model.joblib"
-
+# -----------------------------
+# Load Model (SAFE + CACHED)
+# -----------------------------
+@st.cache_resource
 def load_model():
-    if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError("Model file not found.")
-
-    return joblib.load(MODEL_PATH)
-
+    model_path = Path(__file__).parent / "final_random_forest_model.joblib"
+    return joblib.load(model_path)
 
 model = load_model()
 
-# ---------------- FEATURE LIST ----------------
-FEATURES = [
-    # Placement Country
+# -----------------------------
+# Feature Template (MUST MATCH TRAINING)
+# -----------------------------
+FEATURE_COLUMNS = [
+    # Placement country (top importance)
     "placement_country_India",
     "placement_country_United Kingdom",
     "placement_country_Ireland",
@@ -27,7 +28,7 @@ FEATURES = [
     "placement_country_South Africa",
     "placement_country_United States",
 
-    # Placement Company
+    # Placement company
     "placement_company_Microsoft",
     "placement_company_SAP",
     "placement_company_Goldman Sachs",
@@ -39,7 +40,7 @@ FEATURES = [
     "placement_company_Tesla",
     "placement_company_Facebook",
 
-    # Numeric
+    # Numeric features
     "gpa_or_score",
     "test_score",
     "study_duration",
@@ -49,39 +50,47 @@ FEATURES = [
     "visa_status_Schengen Student Visa"
 ]
 
-# ---------------- PREDICTION FUNCTION ----------------
+# -----------------------------
+# Prediction Function
+# -----------------------------
 def predict_placement(
-    placement_country: str,
-    placement_company: str,
-    visa_status: str,
-    gpa: float,
-    test_score: int,
-    study_duration: int
+    placement_country,
+    placement_company,
+    visa_status,
+    gpa,
+    test_score,
+    study_duration
 ):
     """
     Returns:
-        prediction (int): 1 = Placed, 0 = Not Placed
-        probability (float): probability of placement
+    - prediction (0 or 1)
+    - probability (float)
     """
 
-    # Initialize all features to 0
-    input_data = dict.fromkeys(FEATURES, 0)
+    # Create empty row
+    input_data = pd.DataFrame(0, index=[0], columns=FEATURE_COLUMNS)
 
-    # One-hot encoding
-    input_data[f"placement_country_{placement_country}"] = 1
-    input_data[f"placement_company_{placement_company}"] = 1
-    input_data[f"visa_status_{visa_status}"] = 1
+    # Encode categorical inputs
+    country_col = f"placement_country_{placement_country}"
+    company_col = f"placement_company_{placement_company}"
+    visa_col = f"visa_status_{visa_status}"
+
+    if country_col in input_data.columns:
+        input_data[country_col] = 1
+
+    if company_col in input_data.columns:
+        input_data[company_col] = 1
+
+    if visa_col in input_data.columns:
+        input_data[visa_col] = 1
 
     # Numeric values
     input_data["gpa_or_score"] = gpa
     input_data["test_score"] = test_score
     input_data["study_duration"] = study_duration
 
-    # Convert to DataFrame
-    input_df = pd.DataFrame([input_data])
-
     # Prediction
-    prediction = model.predict(input_df)[0]
-    probability = model.predict_proba(input_df)[0][1]
+    prediction = model.predict(input_data)[0]
+    probability = model.predict_proba(input_data)[0][1]
 
-    return prediction, probability
+    return int(prediction), float(probability)
