@@ -96,19 +96,28 @@ st.divider()
 # --------------------------------------------------
 if st.button("🔮 Predict Placement", use_container_width=True):
 
-    input_df = pd.DataFrame(0, index=[0], columns=FEATURE_COLUMNS)
+    # Create input dataframe using model features
+    input_df = pd.DataFrame(0, index=[0], columns=model.feature_names_in_)
 
-    # Encode categorical values
-    input_df[f"placement_country_{placement_country}"] = 1
-    input_df[f"placement_company_{placement_company}"] = 1
-    input_df[f"visa_status_{visa_status}"] = 1
+    # Encode categorical values (only if column exists)
+    country_col = f"placement_country_{placement_country}"
+    if country_col in input_df.columns:
+        input_df[country_col] = 1
+
+    company_col = f"placement_company_{placement_company}"
+    if company_col in input_df.columns:
+        input_df[company_col] = 1
+
+    visa_col = f"visa_status_{visa_status}"
+    if visa_col in input_df.columns:
+        input_df[visa_col] = 1
 
     # Numeric values
     input_df["gpa_or_score"] = gpa
     input_df["test_score"] = test_score
     input_df["study_duration"] = study_duration
 
-    # Prediction
+    # Predict
     prediction = model.predict(input_df)[0]
     probability = model.predict_proba(input_df)[0][1]
 
