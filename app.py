@@ -11,13 +11,40 @@ st.sidebar.info(
     "A Machine Learning based system to predict student placement outcomes."
 )
 
-st.title("Welcome 👋")
-st.markdown("""
-### Student Migration & Placement Prediction System
+st.title("🎓 Placement System")
+st.sidebar.info(
+    "A Machine Learning based system to predict student placement outcomes."
+)
+st.markdown(
+ """
+    <h1 style='text-align:center;'>🎓 Student Migration & Placement Prediction</h1>
+    <p style='text-align:center;font-size:18px;'>
+    Predict international student placement outcomes using Machine Learning
+    </p>
+    """,
+    unsafe_allow_html=True
+    )
 
-This application helps predict whether a student is likely to be **placed**
-based on academic performance and experience.
+st.divider()
 
-👉 Use the **Predict** page to get results
-👉 Use **Model Info** to understand how predictions work
-""")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.success("📊 Data-Driven Decisions")
+
+with col2:
+    st.info("🧠 Random Forest Model")
+
+with col3:
+    st.warning("🌍 Global Opportunities")
+
+st.divider()
+
+st.markdown(
+    """
+    ### 🔍 How to Use
+    - Go to **Predict** → Enter student details
+    - View **placement probability**
+    - Learn about the model in **Model Info**
+    """
+)
