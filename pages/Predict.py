@@ -60,39 +60,31 @@ FEATURE_COLUMNS = [
 # UI
 # --------------------------------------------------
 st.title("🎯 Placement Prediction")
-st.markdown("Predict whether a student will be **Placed or Not Placed**")
+with st.form("prediction_form"):
+    col1, col2 = st.columns(2)
 
-st.divider()
+    with col1:
+        placement_country = st.selectbox("🌍 Placement Country", [
+            "India", "United Kingdom", "Ireland", "Germany",
+            "Russia", "UAE", "Finland", "South Africa", "United States"
+        ])
 
-placement_country = st.selectbox(
-    "Placement Country",
-    [
-        "India", "United Kingdom", "Ireland", "Germany",
-        "Russia", "UAE", "Finland", "South Africa", "United States"
-    ]
-)
+        visa_status = st.selectbox("🛂 Visa Status", [
+            "Tier 4", "Schengen Student Visa"
+        ])
 
-placement_company = st.selectbox(
-    "Placement Company",
-    [
-        "Microsoft", "SAP", "Goldman Sachs", "Google", "IBM",
-        "McKinsey", "Apple", "Deloitte", "Tesla", "Facebook"
-    ]
-)
+        study_duration = st.number_input("📚 Study Duration (Years)", 1, 6)
 
-visa_status = st.selectbox(
-    "Visa Status",
-    ["Tier 4", "Schengen Student Visa"]
-)
+    with col2:
+        placement_company = st.selectbox("🏢 Placement Company", [
+            "Microsoft", "SAP", "Goldman Sachs", "Google", "IBM",
+            "McKinsey", "Apple", "Deloitte", "Tesla", "Facebook"
+        ])
 
-gpa = st.number_input("GPA / Score", 0.0, 10.0, step=0.01)
-test_score = st.number_input("Test Score", 0, 100)
-study_duration = st.number_input("Study Duration (Years)", 1, 6)
+        gpa = st.number_input("🎓 GPA / Score", 0.0, 10.0, step=0.01)
+        test_score = st.number_input("📝 Test Score", 0, 100)
 
-st.divider()
-
-# --------------------------------------------------
-# Prediction Logic
+    submitted = st.form_submit_button("🔮 Predict Placement")
 # --------------------------------------------------
 if st.button("🔮 Predict Placement", use_container_width=True):
 
