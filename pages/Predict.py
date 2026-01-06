@@ -59,7 +59,7 @@ FEATURE_COLUMNS = [
 # --------------------------------------------------
 # UI
 # --------------------------------------------------
-st.title("🎯 Placement Prediction")
+
 with st.form("prediction_form"):
     col1, col2 = st.columns(2)
 
