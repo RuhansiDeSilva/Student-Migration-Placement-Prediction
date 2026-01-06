@@ -1,6 +1,6 @@
 [theme]
-primaryColor = "#2E86C1"
-backgroundColor = "#F8F9FA"
-secondaryBackgroundColor = "#EAF2F8"
-textColor = "#1C2833"
+primaryColor = "#F39C12"              # ORANGE → Buttons
+backgroundColor = "#F4FAFF"           # SNOW BLUE (main background)
+secondaryBackgroundColor = "#E8F4FD"  # LIGHT SNOW BLUE (sidebar)
+textColor = "#1B4F72"                 # DARK BLUE text
 font = "sans serif"
