@@ -24,4 +24,3 @@ st.markdown("""
 
 st.warning("⚠ Predictions are probabilistic and not guarantees.")
 
-

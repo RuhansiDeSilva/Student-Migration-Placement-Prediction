@@ -16,7 +16,7 @@ st.divider()
 
 
 st.markdown("""
-### 📌 About This App
+###about this app
 This system predicts **student placement outcomes** based on:
 - Academic performance
 - Experience
