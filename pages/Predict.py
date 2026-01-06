@@ -84,7 +84,7 @@ with st.form("prediction_form"):
         gpa = st.number_input("🎓 GPA / Score", 0.0, 10.0, step=0.01)
         test_score = st.number_input("📝 Test Score", 0, 100)
 
-    submitted = st.form_submit_button("🔮 Predict Placement")
+
 # --------------------------------------------------
 if st.button("🔮 Predict Placement", use_container_width=True):
 
